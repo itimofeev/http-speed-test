@@ -11,5 +11,5 @@ func main() {
 		runClient()
 		return
 	}
-	runServer()
+	runServer(":13579")
 }

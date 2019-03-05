@@ -9,27 +9,35 @@ import (
 	"time"
 )
 
-func runServer() {
+type SpeedLogFunc func(duration time.Duration, size uint64)
+
+func GetHandler(logFunc SpeedLogFunc) http.Handler {
 	handler := http.NewServeMux()
 
 	handler.HandleFunc("/download", func(w http.ResponseWriter, r *http.Request) {
-		startTime := time.Now()
-		defer logTime(startTime)
-
-		w.Header().Set("Content-Type", "text/plain")
-		w.WriteHeader(http.StatusOK)
-
 		size := getIntValue(r, "size", 10*1024*1024)
 		randString := RandString(size)
 
-		_, _ = io.WriteString(w, randString)
-	})
+		startTime := time.Now()
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
 
-	if err := http.ListenAndServe(":13579", handler); err != nil {
+		_, err := io.WriteString(w, randString)
+		if err != nil {
+			log.Println(err)
+		}
+
+		logFunc(time.Now().Sub(startTime), uint64(size))
+	})
+	return handler
+}
+
+func runServer(listenAddr string) {
+	if err := http.ListenAndServe(listenAddr, GetHandler(logTime)); err != nil {
 		log.Fatalf("Could not start server: %s\n", err.Error())
 	}
 }
 
-func logTime(startTime time.Time) {
-	fmt.Printf("diff: %s, %s\n", time.Now().Sub(startTime), humanize.Bytes(1024*1024*10))
+func logTime(duration time.Duration, size uint64) {
+	fmt.Printf("served %s by %s, speed %s\n", humanize.IBytes(size), duration, formatSpeed(size, duration))
 }
