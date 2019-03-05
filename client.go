@@ -20,7 +20,7 @@ func (r *countingWriter) Write(p []byte) (int, error) {
 
 func runClient() {
 	serverAddress := "localhost:13579"
-	size := 100 * 1024 * 1024
+	size := 10 * 1024 * 1024 * 1024
 	start := time.Now()
 
 	resp, err := http.Get(fmt.Sprintf("http://%s/download?size=%d", serverAddress, size))
