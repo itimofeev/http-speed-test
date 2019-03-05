@@ -1,4 +1,4 @@
-package main
+package speedt
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ func (r *countingWriter) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
-func runClient() {
+func RunClient() {
 	serverAddress := "localhost:13579"
 	size := 10 * 1024 * 1024 * 1024
 	start := time.Now()
@@ -36,10 +36,10 @@ func runClient() {
 	}
 
 	duration := time.Now().Sub(start)
-	log.Printf("downloaded %s for %s, speed %s", humanize.IBytes(writer.writeBytes), duration, formatSpeed(writer.writeBytes, duration))
+	log.Printf("downloaded %s for %s, speed %s", humanize.IBytes(writer.writeBytes), duration, FormatSpeed(writer.writeBytes, duration))
 }
 
-func formatSpeed(bytes uint64, duration time.Duration) string {
+func FormatSpeed(bytes uint64, duration time.Duration) string {
 	speed := float64(bytes) / duration.Seconds()
 	if speed < 1024 {
 		return fmt.Sprintf("%f b/s", speed)

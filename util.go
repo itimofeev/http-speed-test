@@ -1,4 +1,4 @@
-package main
+package speedt
 
 import (
 	"math/rand"

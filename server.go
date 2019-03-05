@@ -1,4 +1,4 @@
-package main
+package speedt
 
 import (
 	"crypto/rand"
@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-type SpeedLogFunc func(duration time.Duration, size uint64)
+type SpeedLogFunc func(duration time.Duration, size uint64, speed string)
 
 func newRandomReader(size uint64) *randomReader {
 	if size <= 0 {
@@ -63,17 +63,18 @@ func GetHandler(logFunc SpeedLogFunc) http.Handler {
 			log.Println(err)
 		}
 
-		logFunc(time.Now().Sub(startTime), size)
+		duration := time.Now().Sub(startTime)
+		logFunc(duration, size, FormatSpeed(size, duration))
 	})
 	return handler
 }
 
-func runServer(listenAddr string) {
+func RunServer(listenAddr string) {
 	if err := http.ListenAndServe(listenAddr, GetHandler(logTime)); err != nil {
 		log.Fatalf("Could not start server: %s\n", err.Error())
 	}
 }
 
-func logTime(duration time.Duration, size uint64) {
-	fmt.Printf("served %s by %s, speed %s\n", humanize.IBytes(size), duration, formatSpeed(size, duration))
+func logTime(duration time.Duration, size uint64, speed string) {
+	fmt.Printf("served %s by %s, speed %s\n", humanize.IBytes(size), duration, speed)
 }

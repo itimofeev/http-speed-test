@@ -1,6 +1,9 @@
 package main
 
-import "flag"
+import (
+	"flag"
+	"github.com/itimofeev/http-speed-test"
+)
 
 func main() {
 	isServerPtr := flag.String("mode", "server", "can be server or client (default is server)")
@@ -8,8 +11,8 @@ func main() {
 	flag.Parse()
 
 	if *isServerPtr == "client" {
-		runClient()
+		speedt.RunClient()
 		return
 	}
-	runServer(":13579")
+	speedt.RunServer(":13579")
 }
