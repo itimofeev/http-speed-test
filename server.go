@@ -48,10 +48,8 @@ func (r *randomReader) Read(p []byte) (n int, err error) {
 	return readSize, nil
 }
 
-func GetHandler(logFunc SpeedLogFunc) http.Handler {
-	handler := http.NewServeMux()
-
-	handler.HandleFunc("/download", func(w http.ResponseWriter, r *http.Request) {
+func GetHandlerFunc(logFunc SpeedLogFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		size := uint64(getIntValue(r, "size", 10*1024*1024))
 
 		startTime := time.Now()
@@ -65,7 +63,12 @@ func GetHandler(logFunc SpeedLogFunc) http.Handler {
 
 		duration := time.Now().Sub(startTime)
 		logFunc(duration, size, FormatSpeed(size, duration))
-	})
+	}
+}
+
+func GetHandler(logFunc SpeedLogFunc) http.Handler {
+	handler := http.NewServeMux()
+	handler.HandleFunc("/download", GetHandlerFunc(logFunc))
 	return handler
 }
 
